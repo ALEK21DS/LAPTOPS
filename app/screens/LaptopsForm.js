@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Alert } from "react-native"
 import { Input, Button } from "@rneui/base"
 import { useState } from "react"
-import { saveLaptopsRest, updateLaptopsRest } from "../rest_client/laptops"
+import { saveLaptopsRest, updateLaptopsRest, deleteLaptopsRest } from "../rest_client/laptops"
 
 export const LaptopsForm = ({ navigation, route }) => {
     let laptopRetrieved = route.params.laptopParam;
@@ -14,8 +14,8 @@ export const LaptopsForm = ({ navigation, route }) => {
     const [memoria, setMemoria] = useState(isNew ? null : laptopRetrieved.memoria);
     const [disco, setDisco] = useState(isNew ? null : laptopRetrieved.disco);
 
-    const showMessage = () => {
-        Alert.alert("CONFIRMACION", isNew ? "Computadora registrada" : "Computadora actualizada");
+    const showMessage = (message) => {
+        Alert.alert("CONFIRMACION", message);
         navigation.goBack();
     }
 
@@ -44,6 +44,25 @@ export const LaptopsForm = ({ navigation, route }) => {
             showMessage
         )
 
+    }
+    const confirmacionLaptop = () =>{
+        Alert.alert("CONFIRMACION",
+            "Etas seguro de que quieres eliminar?",
+            [{
+                text: "SI",
+                onPress:deleteLaptop
+            },
+            {
+                text: "CANCELAR"
+            }]
+        )
+    }
+    const deleteLaptop = () => {
+        deleteLaptopsRest({
+            id: laptopRetrieved.id
+        },
+        showMessage
+    )
     }
 
     return <View style={styles.container}>
@@ -79,6 +98,12 @@ export const LaptopsForm = ({ navigation, route }) => {
             title="GUARDAR"
             onPress={isNew ? createLaptop : updateLaptop}
         />
+        {
+            isNew ? <View></View> : <Button
+                title="ELIMINAR"
+                onPress={confirmacionLaptop}
+            />
+        }
     </View>
 }
 const styles = StyleSheet.create({
