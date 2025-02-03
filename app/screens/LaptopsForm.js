@@ -1,21 +1,26 @@
 import { View, Text, StyleSheet, Alert } from "react-native"
 import { Input, Button } from "@rneui/base"
 import { useState } from "react"
-import { saveLaptopsRest } from "../rest_client/laptops"
+import { saveLaptopsRest, updateLaptopsRest } from "../rest_client/laptops"
 
-export const LaptopsForm = ({ navigation }) => {
-    const [marca, setMarca] = useState();
-    const [procesador, setProcesador] = useState();
-    const [memoria, setMemoria] = useState();
-    const [disco, setDisco] = useState();
+export const LaptopsForm = ({ navigation, route }) => {
+    let laptopRetrieved = route.params.laptopParam;
+    let isNew = true;
+    if (laptopRetrieved != null) {
+        isNew = false;
+    }
+    const [marca, setMarca] = useState(isNew ? null : laptopRetrieved.marca);
+    const [procesador, setProcesador] = useState(isNew ? null : laptopRetrieved.procesador);
+    const [memoria, setMemoria] = useState(isNew ? null : laptopRetrieved.memoria);
+    const [disco, setDisco] = useState(isNew ? null : laptopRetrieved.disco);
 
     const showMessage = () => {
-        Alert.alert("CONFIRMACION", "Computadora registrada")
+        Alert.alert("CONFIRMACION", isNew ? "Computadora registrada" : "Computadora actualizada");
+        navigation.goBack();
     }
 
-    const saveLaptop = () => {
-        console.log("Save Contact");
-        navigation.goBack();
+    const createLaptop = () => {
+        console.log("Save Laptop");
         saveLaptopsRest(
             {
                 marca: marca,
@@ -25,6 +30,20 @@ export const LaptopsForm = ({ navigation }) => {
             },
             showMessage
         )
+    }
+    const updateLaptop = () => {
+        console.log("Update Laptop");
+        updateLaptopsRest(
+            {
+                id: laptopRetrieved.id,
+                marca: marca,
+                procesador: procesador,
+                memoria: memoria,
+                disco: disco
+            },
+            showMessage
+        )
+
     }
 
     return <View style={styles.container}>
@@ -58,7 +77,7 @@ export const LaptopsForm = ({ navigation }) => {
         />
         <Button
             title="GUARDAR"
-            onPress={saveLaptop}
+            onPress={isNew ? createLaptop : updateLaptop}
         />
     </View>
 }
